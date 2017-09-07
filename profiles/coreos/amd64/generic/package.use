@@ -8,3 +8,6 @@ sys-apps/coreutils	    selinux
 
 # Enable SELinux for runc
 app-emulation/runc          selinux
+
+# Disable pam for xen
+app-emulation/xen-tools	    -pam

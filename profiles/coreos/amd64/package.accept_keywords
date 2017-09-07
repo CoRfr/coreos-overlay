@@ -1,0 +1,4 @@
+# arm64 keywords
+# Keep these in alphabetical order.
+
+=x11-libs/pixman-0.33.4 ~amd64

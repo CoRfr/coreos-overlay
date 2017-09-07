@@ -79,7 +79,8 @@ RDEPEND="${RDEPEND}
 		app-admin/adcli
 		app-crypt/go-tspi
 		app-emulation/xenserver-pv-version
-		app-emulation/xenstore
+		app-emulation/xen-tools
+		app-emulation/xen
 		sys-auth/realmd
 		sys-auth/sssd
 	)"
