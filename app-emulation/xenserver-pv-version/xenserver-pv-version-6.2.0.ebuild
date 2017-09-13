@@ -16,7 +16,7 @@ KEYWORDS="amd64"
 IUSE=""
 
 DEPEND=""
-RDEPEND="app-emulation/xenstore"
+RDEPEND="app-emulation/xen-tools"
 
 S="${WORKDIR}"
 

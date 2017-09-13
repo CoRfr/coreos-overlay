@@ -83,3 +83,6 @@ dev-util/checkbashisms
 
 # CVE-2017-1000117
 =dev-vcs/git-2.13.5
+
+=app-emulation/xen-tools-4.8.1-r1 ~amd64
+=app-emulation/xen-4.8.1-r3 ~amd64

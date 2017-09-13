@@ -41,7 +41,8 @@ IUSE="custom-cflags debug efi flask"
 
 DEPEND="${PYTHON_DEPS}
 	efi? ( >=sys-devel/binutils-2.22[multitarget] )
-	!efi? ( >=sys-devel/binutils-2.22 )"
+	!efi? ( >=sys-devel/binutils-2.22 )
+	app-arch/xz-utils"
 RDEPEND=""
 PDEPEND="~app-emulation/xen-tools-${PV}"
 
@@ -139,7 +140,7 @@ src_prepare() {
 	sed -i 's/, "-Werror"//' "${S}/tools/python/setup.py" || die "failed to re-set setup.py"
 
 	# Bug #575868 converted to a sed statement, typo of one char
-	sed -e "s:granter’s:granter's:" -i xen/include/public/grant_table.h || die
+	sed -e "s:granterâs:granter's:" -i xen/include/public/grant_table.h || die
 
 	epatch_user
 }

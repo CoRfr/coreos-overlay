@@ -46,3 +46,6 @@ sys-libs/libseccomp static-libs
 
 # bind-tools' configure script breaks when cross-compiling with seccomp enabled
 net-dns/bind-tools -seccomp
+
+# enable python for pygrub
+app-emulation/xen-tools python

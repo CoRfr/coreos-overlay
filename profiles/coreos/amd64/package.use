@@ -1,0 +1,2 @@
+# enable VT-x
+app-emulation/xen-tools hvm
