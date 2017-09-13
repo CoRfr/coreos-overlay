@@ -77,6 +77,7 @@ COMMON_DEPEND="
 	dev-libs/libaio
 	dev-libs/libgcrypt:0
 	sys-libs/zlib
+  app-arch/xz-utils
 	${PYTHON_DEPS}
 "
 
@@ -116,19 +117,22 @@ DEPEND="${COMMON_DEPEND}
 	hvm? ( x11-proto/xproto
 		!net-libs/libiscsi )
 	qemu? (
-		x11-libs/pixman
 		sdl? ( media-libs/libsdl[X] )
 	)
-	system-qemu? ( app-emulation/qemu[xen] )
 	ocaml? ( dev-ml/findlib
 		>=dev-lang/ocaml-4 )"
 
 RDEPEND="${COMMON_DEPEND}
 	sys-apps/iproute2[-minimal]
 	net-misc/bridge-utils
+	dev-lang/perl
 	screen? (
 		app-misc/screen
 		app-admin/logrotate
+	)
+	qemu? (
+		x11-libs/pixman
+		sdl? ( media-libs/libsdl[X] )
 	)"
 
 # hvmloader is used to bootstrap a fully virtualized kernel
@@ -323,12 +327,18 @@ src_prepare() {
 		-i tools/examples/xl.conf  || die
 
 	# Bug #575868 converted to a sed statement, typo of one char
-	sed -e "s:granter’s:granter's:" -i xen/include/public/grant_table.h || die
+	sed -e "s:granterâs:granter's:" -i xen/include/public/grant_table.h || die
+
+    sed -i 's:(PYTHON):(PYTHONPATH):g' tools/python/Makefile || die
+    sed -i 's:(PYTHON):(PYTHONPATH):g' tools/pygrub/Makefile || die
 
 	epatch_user
 }
 
 src_configure() {
+  export PYTHON="/build/amd64-usr/usr/bin/python2.7"
+  export PYTHONPATH="/build/amd64-usr/usr/bin/python2.7"
+
 	local myconf="--prefix=${PREFIX}/usr \
 		--libdir=${PREFIX}/usr/$(get_libdir) \
 		--libexecdir=${PREFIX}/usr/libexec \
@@ -337,10 +347,13 @@ src_configure() {
 		--disable-xen \
 		--enable-tools \
 		--enable-docs \
+		--enable-systemd \
+		--with-extra-qemuu-configure-args='--disable-vnc-sasl' \
 		$(use_enable pam) \
 		$(use_enable api xenapi) \
 		$(use_enable ovmf) \
 		$(use_enable ocaml ocamltools) \
+        $(use_with python python "${PYTHON}") \
 		--with-xenstored=$(usex ocaml 'oxenstored' 'xenstored') \
 		"
 
@@ -348,9 +361,25 @@ src_configure() {
 	use system-qemu && myconf+=" --with-system-qemu=/usr/bin/qemu-system-x86_64"
 	use amd64 && myconf+=" $(use_enable qemu-traditional)"
 	econf ${myconf}
+
+  if use python; then
+    echo "EPython: $EPYTHON"
+    if [ -z "$PYTHON" ] || [[ "$PYTHON" == "/usr/bin/python2.7" ]]; then
+        echo "Python: $PYTHON"
+        exit 1
+    else
+        echo "Python: $PYTHON"
+    fi
+  else
+    echo "No python"
+    exit 1
+  fi
 }
 
 src_compile() {
+  export PYTHON="/build/amd64-usr/usr/bin/python2.7"
+  export PYTHONPATH="/build/amd64-usr/usr/bin/python2.7"
+
 	export VARTEXFONTS="${T}/fonts"
 	local myopt
 	use debug && myopt="${myopt} debug=y"
@@ -378,7 +407,14 @@ src_install() {
 		XEN_PYTHON_NATIVE_INSTALL=y install-tools
 
 	# Fix the remaining Python shebangs.
-	python_fix_shebang "${D}"
+  if use python; then
+    export EPYTHON="python2.7"
+    export ECLASS_DEBUG_OUTPUT="on"
+    python_fix_shebang "${D}"
+    for file in $(grep -Rl "/build/amd64-usr/usr/bin/python2.7" "${D}"); do
+        sed -i 's#/build/amd64-usr##g' $file
+    done
+  fi
 
 	# Remove RedHat-specific stuff
 	rm -rf "${D}"tmp || die
@@ -423,6 +459,10 @@ src_install() {
 	# Remove files failing QA AFTER emake installs them, avoiding seeking absent files
 	find "${D}" \( -name openbios-sparc32 -o -name openbios-sparc64 \
 		-o -name openbios-ppc -o -name palcode-clipper \) -delete || die
+
+	# Make content of /etc/xen available in cpio image
+	mkdir -p "${D}/usr/share/xen/"
+	cp -R "${D}/etc/xen/" "${D}/usr/share/xen/etc"
 }
 
 pkg_postinst() {

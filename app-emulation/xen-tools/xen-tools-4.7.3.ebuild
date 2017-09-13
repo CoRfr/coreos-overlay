@@ -75,7 +75,6 @@ COMMON_DEPEND="
 	dev-libs/yajl
 	dev-libs/libaio
 	dev-libs/libgcrypt:0
-	dev-libs/cyrus-sasl
 	sys-libs/zlib
 	${PYTHON_DEPS}
 "
@@ -347,6 +346,7 @@ src_configure() {
 		--disable-xen \
 		--enable-tools \
 		--enable-docs \
+		--with-extra-qemuu-configure-args='--disable-vnc-sasl' \
 		$(use_enable pam) \
 		$(use_enable api xenapi) \
 		$(use_enable ovmf) \
