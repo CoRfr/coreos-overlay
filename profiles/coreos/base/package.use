@@ -89,6 +89,7 @@ sys-apps/portage -xattr
 # Enable -M and -Z flags; -M is used by mayday
 sys-process/lsof rpc selinux
 
-app-emulation/xen-tools -qemu system-qemu qemu-traditional python2_7 python pygrub
+app-emulation/xen-tools -qemu system-qemu qemu-traditional python2_7 python pygrub hvm
 app-emulation/qemu      xen -pin-upstream-blobs
 sys-firmware/edk2-ovmf  -qemu
+
